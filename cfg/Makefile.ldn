@@ -1,0 +1,30 @@
+include Makefile.secret
+include Makefile.shared
+
+define wireguard_conf
+[Interface]
+PrivateKey = $(lg_wg_priv)
+Address = $(lg_ip)
+ListenPort = 51820
+
+[Peer]
+PublicKey = $(pi1_wg_pub)
+AllowedIPs = $(pi1_ip)
+
+endef
+
+build/packages: build
+	apt-get update
+	apt-get install -y wireguard
+	touch build/packages
+
+build/wg: build build/packages
+	$(file > wg0.conf,$(wireguard_conf))
+	mv wg0.conf /etc/wireguard/
+	- wg-quick down wg0
+	wg-quick up wg0
+	systemctl enable wg-quick@wg0
+	touch build/wg
+
+setup: build/ssh-keys build/wg
+	@echo "All setup!"
