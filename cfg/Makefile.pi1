@@ -1,0 +1,32 @@
+include Makefile.secret
+include Makefile.shared
+
+define wireguard_conf
+[Interface]
+PrivateKey = $(pi1_wg_priv)
+Address = $(pi1_ip)
+ListenPort=51820
+
+[Peer]
+PublicKey = $(lg_wg_pub)
+Endpoint = $(lg_wan):51820
+AllowedIPs = $(lg_ip)
+PersistentKeepalive = 25
+
+endef
+
+build/packages: build
+	apt-get update
+	apt-get install -y libraspberrypi-bin wireguard
+	touch build/packages
+
+build/wg: build build/packages
+	$(file > wg0.conf,$(wireguard_conf))
+	mv wg0.conf /etc/wireguard/
+	- wg-quick down wg0
+	wg-quick up wg0
+	systemctl enable wg-quick@wg0
+	touch build/wg
+
+setup: build/ssh-keys build/wg
+	@echo "All setup!"

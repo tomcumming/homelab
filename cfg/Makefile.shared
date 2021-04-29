@@ -1,0 +1,19 @@
+user_name = tommo
+
+lg_wan = 192.168.122.180
+
+lg_ip = 10.0.0.100
+pi1_ip = 10.0.0.1
+
+lg_wg_pub = zVYPudg62+rsx3yEflDFpJncAXehRCET7ukpU5hZ5zI=
+pi1_wg_pub = P4kbGvEMkvDda27At1Bdf1GQPf7skKgkxd7ncckA9RY=
+
+build:
+	mkdir build
+
+build/ssh-keys: build
+	mkdir -p /home/$(user_name)/.ssh
+	touch /home/$(user_name)/.ssh/authorized_keys
+	sed -i '/ mail@tomcumming.co.uk$$/d' /home/$(user_name)/.ssh/authorized_keys
+	echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILeuUvkmV6/j0m0bd2Cay6PmjFKJZ+f/AScEbMC16y0h mail@tomcumming.co.uk' >> /home/$(user_name)/.ssh/authorized_keys
+	touch build/ssh-keys
